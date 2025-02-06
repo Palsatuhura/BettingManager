@@ -2,7 +2,7 @@
 node_module/
 .firebase/
 .env
-firebase-service-account.jsom
+firebase-service-account.json
 
 # Builds
 dist/
