@@ -1,9 +1,8 @@
 # dependicies
 node_module/
 .firebase/
-.env
-firebase-service-account.json
-
+server/.env
+server/firebase-service-account.json
 # Builds
 dist/
 build/
