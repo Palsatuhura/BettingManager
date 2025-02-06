@@ -1,0 +1,9 @@
+# dependicies
+node_module/
+.firebase/
+.env
+firebase-service-account.jsom
+
+# Builds
+dist/
+build/
