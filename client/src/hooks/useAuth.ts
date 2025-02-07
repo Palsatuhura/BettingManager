@@ -1,15 +1,22 @@
 import { useEffect, useState } from "react";
 import { auth } from "../firebase";
-import { User } from "firebase/auth";
+import { onAuthStateChanged, User } from "firebase/auth";
+import { create } from "zustand";
 
-export const useAuth = () => {
-  const [user, setUser] = useState<User | null>(null);
-
-  useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged((user) => {
-      setUser(user);
-    });
-    return unsubscribe;
-  });
-  return { user };
+type Auth = {
+  user: User | null;
+  loading: boolean;
+  logout: () => Promise<void>;
 };
+
+export const useAuth = create<Auth>((set) => ({
+  user: null,
+  loading: true,
+  logout: async () => {
+    await auth.signOut();
+  },
+}));
+
+onAuthStateChanged(auth, (user) => {
+  useAuth.setState({ user, loading: false });
+});
