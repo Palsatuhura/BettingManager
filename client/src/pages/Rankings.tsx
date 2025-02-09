@@ -18,36 +18,42 @@ const Rankings: React.FC = () => {
       </h2>
 
       <ul className="space-y-4">
-        {rankings.map((user, index) => (
-          <li
-            key={index}
-            className="p-4 rounded-lg bg-gray-100 dark:bg-gray-800 shadow-md transition-all"
-          >
-            <div className="flex justify-between items-center">
-              <span className="font-semibold text-lightText dark:text-darkText">
-                {user.name}
-              </span>
-              <span className="text-sm text-gray-600 dark:text-gray-400">
-                {user.winningStreak} Wins Streak
-              </span>
-            </div>
+        {rankings.map((user, index) =>
+          user ? (
+            <li
+              key={index}
+              className="p-4 rounded-lg bg-gray-100 dark:bg-gray-800 shadow-md transition-all"
+            >
+              <div className="flex justify-between items-center">
+                <span className="font-semibold text-lightText dark:text-darkText">
+                  {user.name}
+                </span>
+                <span className="text-sm text-gray-600 dark:text-gray-400">
+                  {user.winningStreak} Wins Streak
+                </span>
+              </div>
 
-            {/* Progress Bar */}
-            <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3 mt-2 relative">
-              <div
-                className={`h-3 rounded-full ${getProgressColor(
-                  user.winRate
-                )} transition-all`}
-                style={{ width: `${user.winRate}%` }}
-              ></div>
-            </div>
+              {/* Progress Bar */}
+              <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3 mt-2 relative">
+                <div
+                  className={`h-3 rounded-full ${getProgressColor(
+                    user.winRate
+                  )} transition-all`}
+                  style={{ width: `${user.winRate}%` }}
+                ></div>
+              </div>
 
-            <div className="mt-2 text-sm text-gray-500 dark:text-gray-400">
-              <span className="mr-4">🏆 {user.wins} Wins</span>
-              <span>❌ {user.losses} Losses</span>
-            </div>
-          </li>
-        ))}
+              <div className="mt-2 text-sm text-gray-500 dark:text-gray-400">
+                <span className="mr-4"> {user.wins} Wins</span>
+                <span> {user.losses} Losses</span>
+              </div>
+            </li>
+          ) : (
+            <li key={index}>
+              <span>No user data available</span>
+            </li>
+          )
+        )}
       </ul>
     </div>
   );
