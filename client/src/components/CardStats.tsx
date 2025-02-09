@@ -24,15 +24,9 @@ export const CardStats = ({
   useEffect(() => {
     if (!userId) return; // Skip subscription if userId is not available
 
-    const unsubscribe = listenToBetMetrics(
-      userId,
-      (metrics) => {
-        // Handle metrics update
-      },
-      (error) => {
-        console.error("Metrics error:", error);
-      }
-    );
+    const unsubscribe = listenToBetMetrics(userId, (metrics) => {
+      // Handle metrics update
+    });
 
     return () => unsubscribe();
   }, [userId]);
