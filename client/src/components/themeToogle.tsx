@@ -1,38 +1,32 @@
-import React, { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
+import { Moon, Sun } from "lucide-react";
 
-const ThemeToggle: React.FC = () => {
-  const [isDarkMode, setIsDarkMode] = useState(false);
+const ThemeToggle = () => {
+  const [theme, setTheme] = useState(() => {
+    return localStorage.getItem("theme") || "dark"; // Default to dark mode
+  });
 
-  // Check localStorage to apply the theme on page load
   useEffect(() => {
-    const savedTheme = localStorage.getItem("theme");
-    if (savedTheme === "dark") {
-      setIsDarkMode(true);
+    if (theme === "dark") {
       document.documentElement.classList.add("dark");
+      document.documentElement.classList.remove("light");
     } else {
-      setIsDarkMode(false);
+      document.documentElement.classList.add("light");
       document.documentElement.classList.remove("dark");
     }
-  }, []);
+    localStorage.setItem("theme", theme);
+  }, [theme]);
 
-  // Function to toggle theme
   const toggleTheme = () => {
-    setIsDarkMode(!isDarkMode);
-    if (!isDarkMode) {
-      document.documentElement.classList.add("dark");
-      localStorage.setItem("theme", "dark");
-    } else {
-      document.documentElement.classList.remove("dark");
-      localStorage.setItem("theme", "light");
-    }
+    setTheme((prev) => (prev === "dark" ? "light" : "dark"));
   };
 
   return (
     <button
       onClick={toggleTheme}
-      className="p-2 rounded-full bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-300"
+      className="p-2 rounded-full transition-all bg-lightInput dark:bg-darkInput text-lightText dark:text-darkText hover:scale-105"
     >
-      {isDarkMode ? "🌙" : "🌞"}
+      {theme === "dark" ? <Sun size={24} /> : <Moon size={24} />}
     </button>
   );
 };

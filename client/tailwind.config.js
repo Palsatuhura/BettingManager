@@ -11,6 +11,9 @@ module.exports = {
         darkBackground: "#1a202c", // Dark mode background
         lightBackground: "#bec5d1", // Light mode background
         darkCard: "#212836", // Dark card background
+        electric: "#00A8E8",
+        neon: "#7CFC00",
+        crimson: "#DC143C",
       },
       transitionProperty: {
         all: "all",

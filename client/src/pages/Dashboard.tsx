@@ -1,173 +1,295 @@
-import { useAuth } from "../hooks/useAuth";
-import { auth } from "../firebase";
-import { Button, Flex, Grid, Heading, Text } from "@radix-ui/themes";
+// Dashboard.tsx
+import React, { useState, useEffect } from "react";
 import {
   LineChart,
   Line,
+  CartesianGrid,
   XAxis,
   YAxis,
   Tooltip,
+  BarChart,
+  Bar,
+  Legend,
   ResponsiveContainer,
 } from "recharts";
-import { PlusIcon } from "@heroicons/react/24/outline";
+import { Card, CardContent } from "../components/ui/card";
+import {
+  Menu,
+  X,
+  Settings as SettingsIcon,
+  List,
+  FileText,
+  TrendingUp,
+  Trophy,
+} from "lucide-react";
+import { Button } from "../components/ui/button";
 import ThemeToggle from "../components/themeToogle";
+import UserDropDown from "../components/UserDropDown";
+import BetTracker from "./BetTracker";
+import RankingsPreview from "../components/RankingsPreview";
+import Settings from "./Settings";
+import { useDarkMode } from "../hooks/useDarkMode"; // Adjust the hook path if necessary
+import UpcomingMatchesPreview from "../components/UpcomingMatchesPreview";
 
-export const Dashboard = () => {
-  const { user } = useAuth();
+const Dashboard: React.FC = () => {
+  const [isSidebarOpen, setSidebarOpen] = useState(false);
+  const [isNavbarVisible, setNavbarVisible] = useState(true);
+  const [lastScrollY, setLastScrollY] = useState(0);
+  const isDark = useDarkMode(); // Get current theme
 
-  // Temporary data - replace with real data later
-  const stats = [
-    { title: "Total Profit", value: "+$1,240", color: "text-green-500" },
-    { title: "ROI", value: "24.5%", color: "text-green-500" },
-    { title: "Win Rate", value: "62%", color: "text-green-500" },
-    { title: "Total Bets", value: "89", color: "text-blue-500" },
+  // Define chart colors based on the current theme:
+  const gridStrokeColor = isDark ? "#4a5568" : "#ccc";
+  const axisTickColor = isDark ? "#87898c" : "#333333";
+  const tooltipBgColor = isDark ? "#212836" : "#ffffff";
+  const tooltipBorderColor = isDark ? "#4a5568" : "#ccc";
+  const legendTextColor = isDark ? "#87898c" : "#333333";
+
+  const toggleSidebar = () => setSidebarOpen(!isSidebarOpen);
+  const closeSidebar = () => setSidebarOpen(false);
+
+  // Hide navbar on scroll down, show on scroll up
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > lastScrollY) {
+        setNavbarVisible(false);
+      } else {
+        setNavbarVisible(true);
+      }
+      setLastScrollY(window.scrollY);
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [lastScrollY]);
+
+  // Sample Data for charts
+  const lineChartData = [
+    { name: "Jan", tracked: 40, profits: 24 },
+    { name: "Feb", tracked: 30, profits: 13 },
+    { name: "Mar", tracked: 20, profits: 98 },
+    { name: "Apr", tracked: 27, profits: 39 },
+    { name: "May", tracked: 18, profits: 48 },
+    { name: "Jun", tracked: 23, profits: 38 },
   ];
 
-  const recentBets = [
-    {
-      id: 1,
-      event: "Man City vs Arsenal",
-      odds: 2.1,
-      stake: 100,
-      result: "Win",
-    },
-    {
-      id: 2,
-      event: "LA Lakers vs Celtics",
-      odds: 1.8,
-      stake: 50,
-      result: "Loss",
-    },
+  const barChartData = [
+    { name: "Football", "2025": 2400, "2024": 1398 },
+    { name: "Basketball", "2025": 2210, "2024": 1400 },
+    { name: "Tennis", "2025": 2290, "2024": 1700 },
+    { name: "Cricket", "2025": 2000, "2024": 1200 },
   ];
-
-  const chartData = [
-    { date: "Jan", profit: 400 },
-    { date: "Feb", profit: 620 },
-    { date: "Mar", profit: 890 },
-  ];
-
-  const handleLogout = async () => {
-    await auth.signOut();
-  };
 
   return (
-    <div className="min-h-screen bg-lightBackground dark:bg-darkBackground text-lightText dark:text-darkText p-6 transition-all duration-300">
-      {/* Header */}
-      <Flex justify="between" align="center" className="mb-8">
-        <Heading size="7" className="text-blue-500">
-          Bet Dashboard
-        </Heading>
-        <div className="flex gap-4">
-          <ThemeToggle />
+    <div className="min-h-screen flex bg-lightBackground dark:bg-darkBackground transition-colors duration-300">
+      {/* Sidebar */}
+      <aside
+        className={`fixed top-0 left-0 h-screen w-64 bg-darkCard text-white p-4 z-50 transition-transform duration-300 
+          ${
+            isSidebarOpen ? "translate-x-0" : "-translate-x-full"
+          } lg:translate-x-0`}
+      >
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-xl font-bold">Bet Manager Pro</h2>
           <Button
-            onClick={handleLogout}
-            className="bg-red-500 text-white cursor-pointer"
+            className="lg:hidden p-2 rounded-md bg-gray-700 hover:bg-gray-600 transition-colors duration-300"
+            onClick={closeSidebar}
           >
-            Logout
+            <X size={24} />
           </Button>
         </div>
-      </Flex>
 
-      {/* Stats Grid */}
-      <Grid columns="4" gap="5" className="mb-8">
-        {stats.map((stat) => (
-          <div
-            key={stat.title}
-            className="bg-darkCard p-6 rounded-lg transition-colors duration-300"
-          >
-            <Text size="4" className="text-gray-400 mb-2">
-              {stat.title}
-            </Text>
-            <Text size="6" className={`font-bold ${stat.color}`}>
-              {stat.value}
-            </Text>
-          </div>
-        ))}
-      </Grid>
+        <nav>
+          <ul className="space-y-4">
+            <li>
+              <Button className="w-full">Dashboard</Button>
+            </li>
+            <li>
+              <Button className="w-full">Bet Tracker</Button>
+            </li>
+            <li>
+              <Button className="w-full">Notes</Button>
+            </li>
+            <li>
+              <Button className="w-full">Rankings</Button>
+            </li>
+            <li>
+              <Button className="w-full">Settings</Button>
+            </li>
+          </ul>
+        </nav>
+      </aside>
 
-      {/* Chart + Recent Bets */}
-      <Grid columns="2" gap="5" className="mb-8">
-        {/* Profit Chart */}
-        <div className="bg-darkCard p-6 rounded-lg h-80 transition-colors duration-300">
-          <Heading size="5" className="mb-4 text-blue-500">
-            Profit Trend
-          </Heading>
-          <ResponsiveContainer width="100%" height="90%">
-            <LineChart data={chartData}>
-              <XAxis dataKey="date" stroke="currentColor" />
-              <YAxis stroke="currentColor" />
-              <Tooltip
-                contentStyle={{
-                  backgroundColor: "var(--darkCard)",
-                  border: "none",
-                  color: "var(--darkText)",
-                }}
-              />
-              <Line
-                type="monotone"
-                dataKey="profit"
-                stroke="#3b82f6" // Using Tailwind's blue-500
-                strokeWidth={2}
-              />
-            </LineChart>
-          </ResponsiveContainer>
-        </div>
-
-        {/* Recent Bets */}
-        <div className="bg-darkCard p-6 rounded-lg transition-colors duration-300">
-          <Flex justify="between" align="center" className="mb-4">
-            <Heading size="5" className="text-blue-500">
-              Recent Bets
-            </Heading>
-            <Button className="bg-blue-500 text-white cursor-pointer">
-              <PlusIcon className="h-4 w-4 mr-2" />
-              New Bet
+      {/* Main Content */}
+      <main className="flex-1 lg:ml-64">
+        {/* Fixed Navbar */}
+        <header
+          className={`fixed top-0 left-0 w-full lg:left-64 lg:w-[calc(100%-16rem)] bg-lightBackground dark:bg-darkBackground p-4 shadow-md z-40 flex justify-between items-center transition-transform duration-300 ${
+            isNavbarVisible ? "translate-y-0" : "-translate-y-full"
+          }`}
+        >
+          <div className="flex items-center space-x-4">
+            <Button
+              className="lg:hidden p-2 rounded-md bg-gray-200 dark:bg-gray-700 transition-colors duration-300"
+              onClick={toggleSidebar}
+            >
+              <Menu size={24} />
             </Button>
-          </Flex>
-          <table className="w-full">
-            <thead>
-              <tr className="text-left text-gray-400">
-                <th className="pb-2">Event</th>
-                <th className="pb-2">Odds</th>
-                <th className="pb-2">Stake</th>
-                <th className="pb-2">Result</th>
-              </tr>
-            </thead>
-            <tbody>
-              {recentBets.map((bet) => (
-                <tr key={bet.id} className="border-t border-gray-700">
-                  <td className="py-3">{bet.event}</td>
-                  <td>{bet.odds}</td>
-                  <td>${bet.stake}</td>
-                  <td>
-                    <span
-                      className={`px-2 py-1 rounded ${
-                        bet.result === "Win"
-                          ? "bg-green-900 text-green-300"
-                          : "bg-red-900 text-red-300"
-                      }`}
-                    >
-                      {bet.result}
-                    </span>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </Grid>
+            <ThemeToggle />
+          </div>
+          <div className="flex items-center space-x-4">
+            <Button className="p-2 rounded-md bg-gray-200 dark:bg-gray-700 transition-colors duration-300">
+              <SettingsIcon size={24} />
+            </Button>
+            <UserDropDown />
+          </div>
+        </header>
 
-      {/* Quick Notes Section */}
-      <div className="bg-darkCard p-6 rounded-lg transition-colors duration-300">
-        <Heading size="5" className="mb-4 text-blue-500">
-          Quick Notes
-        </Heading>
-        <textarea
-          placeholder="Add notes about today's matches..."
-          className="w-full bg-darkInput text-darkText rounded p-4 focus:ring-2 focus:ring-blue-500 transition-all duration-300"
-          rows={3}
-        />
-      </div>
+        {/* Page Content */}
+        <div className="mt-16 p-6">
+          {/* Top Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+            {/* Card 1: Total Bets Tracked */}
+            <Card>
+              <CardContent>
+                <div className="flex justify-between items-center">
+                  <h3 className="text-sm font-bold text-lightText dark:text-darkText">
+                    Total Bets Tracked
+                  </h3>
+                  <List
+                    size={20}
+                    className="text-lightText dark:text-darkText"
+                  />
+                </div>
+                <p className="text-2xl font-bold text-electric">350</p>
+                <span className="text-green-500">+12% this month</span>
+              </CardContent>
+            </Card>
+            {/* Card 2: Active Notes */}
+            <Card>
+              <CardContent>
+                <div className="flex justify-between items-center">
+                  <h3 className="text-sm font-bold text-lightText dark:text-darkText">
+                    Active Notes
+                  </h3>
+                  <FileText
+                    size={20}
+                    className="text-lightText dark:text-darkText"
+                  />
+                </div>
+                <p className="text-2xl font-bold text-crimson">24</p>
+                <span className="text-red-500">-4% this week</span>
+              </CardContent>
+            </Card>
+            {/* Card 3: Profit/Loss */}
+            <Card>
+              <CardContent>
+                <div className="flex justify-between items-center">
+                  <h3 className="text-sm font-bold text-lightText dark:text-darkText">
+                    Profit/Loss
+                  </h3>
+                  <TrendingUp
+                    size={20}
+                    className="text-lightText dark:text-darkText"
+                  />
+                </div>
+                <p className="text-2xl font-bold text-neon">+4.5%</p>
+                <span className="text-green-500">+3% since yesterday</span>
+              </CardContent>
+            </Card>
+            {/* Card 4: Rankings Updated */}
+            <Card>
+              <CardContent>
+                <div className="flex justify-between items-center">
+                  <h3 className="text-sm font-bold text-lightText dark:text-darkText">
+                    Rankings Updated
+                  </h3>
+                  <Trophy size={20} className="text-yellow-500 animate-pulse" />
+                </div>
+                <p className="text-2xl font-bold text-electric">16</p>
+                <span className="text-blue-500">+6 new today</span>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Charts */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <Card>
+              <CardContent>
+                <h3 className="text-lg font-bold mb-4 text-lightText dark:text-darkText">
+                  Bet Analytics
+                </h3>
+                <ResponsiveContainer width="100%" height={300}>
+                  <LineChart data={lineChartData}>
+                    <Line
+                      type="monotone"
+                      dataKey="tracked"
+                      stroke="#00A8E8"
+                      strokeWidth={3}
+                    />
+                    <Line
+                      type="monotone"
+                      dataKey="profits"
+                      stroke="#7CFC00"
+                      strokeWidth={3}
+                    />
+                    <CartesianGrid stroke={gridStrokeColor} />
+                    <XAxis dataKey="name" tick={{ fill: axisTickColor }} />
+                    <YAxis tick={{ fill: axisTickColor }} />
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: tooltipBgColor,
+                        borderColor: tooltipBorderColor,
+                      }}
+                      labelStyle={{ color: axisTickColor }}
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardContent>
+                <h3 className="text-lg font-bold mb-4 text-lightText dark:text-darkText">
+                  Betting Markets
+                </h3>
+                <ResponsiveContainer width="100%" height={300}>
+                  <BarChart data={barChartData}>
+                    <CartesianGrid
+                      strokeDasharray="3 3"
+                      stroke={gridStrokeColor}
+                    />
+                    <XAxis dataKey="name" tick={{ fill: axisTickColor }} />
+                    <YAxis tick={{ fill: axisTickColor }} />
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: tooltipBgColor,
+                        borderColor: tooltipBorderColor,
+                      }}
+                      labelStyle={{ color: axisTickColor }}
+                    />
+                    <Legend wrapperStyle={{ color: legendTextColor }} />
+                    <Bar dataKey="2025" fill="#00A8E8" barSize={20} />
+                    <Bar dataKey="2024" fill="#7CFC00" barSize={20} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Additional Components */}
+          <div className="grid grid-cols-1 gap-6 mt-6">
+            <BetTracker />
+            {/* Upcoming Matches and Rankings side by side on large screens */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <UpcomingMatchesPreview />
+              <RankingsPreview />
+            </div>
+            <Settings />
+          </div>
+        </div>
+      </main>
     </div>
   );
 };
+
+export default Dashboard;

@@ -3,6 +3,8 @@ import AuthPage from "./pages/Auth";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Dashboard from "./pages/Dashboard";
 import SnackbarProvider from "./components/SnackbarProvider";
+import Rankings from "./pages/Rankings";
+import UpcomingMatches from "./pages/UpcomingMatches";
 
 function App() {
   return (
@@ -15,6 +17,22 @@ function App() {
             element={
               <ProtectedRoute>
                 <Dashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/rankings"
+            element={
+              <ProtectedRoute>
+                <Rankings />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/upcoming"
+            element={
+              <ProtectedRoute>
+                <UpcomingMatches />
               </ProtectedRoute>
             }
           />
