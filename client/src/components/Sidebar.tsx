@@ -1,3 +1,5 @@
+import React from "react";
+
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import {
@@ -10,16 +12,26 @@ import {
 export default function Sidebar() {
   const [collapseShow, setCollapseShow] = useState("hidden");
 
-  const NavItem = ({ path, icon, label }) => {
-    <li className="items-center">
-      <Link
-        to={path}
-        className="text-darkText hover:text-electric flex items-center py-3 space-x-2 transition-colors"
-      >
-        {icon}
-        <span>{label}</span>
-      </Link>
-    </li>;
+  const NavItem = ({
+    path,
+    icon,
+    label,
+  }: {
+    path: string;
+    icon: React.ReactElement;
+    label: string;
+  }) => {
+    return (
+      <li className="items-center">
+        <Link
+          to={path}
+          className="text-darkText hover:text-electric flex items-center py-3 space-x-2 transition-colors"
+        >
+          {icon}
+          <span>{label}</span>
+        </Link>
+      </li>
+    );
   };
 
   return (
