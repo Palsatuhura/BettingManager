@@ -1,5 +1,4 @@
-import { CardStats } from "./Cardstats";
-
+import { CardStats } from "./CardStats";
 export default function StatsHeader() {
   // Sample data - connect to your state management
   const stats = [
