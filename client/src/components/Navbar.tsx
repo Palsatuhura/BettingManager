@@ -11,7 +11,7 @@ export default function Navbar() {
   const handleLogout = async () => {
     try {
       await signOut(auth);
-      setUser(null);
+      setUser({ uid: "", email: "" });
     } catch (error) {
       console.log("Error signing out", error);
     }
